@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    k8s-app: fluent-bit-logging
+    kubernetes.io/cluster-service: "true"
+    version: v1
+  name: fluent-bit
+  namespace: logging
+spec:
+  selector:
+    matchLabels:
+      k8s-app: fluent-bit-logging
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /api/v1/metrics/prometheus
+        prometheus.io/port: "2020"
+        prometheus.io/scrape: "true"
+      labels:
+        k8s-app: fluent-bit-logging
+        kubernetes.io/cluster-service: "true"
+        version: v1
+    spec:
+      containers:
+      - env:
+        - name: OPENSEARCH_ENDPOINT
+          value: search-ddoksik-vg6hgwk3if5ofeftuystz5scea.ap-northeast-2.es.amazonaws.com
+        - name: AWS_REGION
+          value: ap-northeast-2
+        - name: INDEX_NAME
+          value: eks-log
+        name: fluent-bit
+        image: amazon/aws-for-fluent-bit:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 2020
+        volumeMounts:
+        - mountPath: /var/log
+          name: varlog
+        - mountPath: /var/lib/docker/containers
+          name: varlibdockercontainers
+          readOnly: true
+        - mountPath: /fluent-bit/etc/
+          name: fluent-bit-config
+      serviceAccountName: fluent-bit
+      terminationGracePeriodSeconds: 10
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      - effect: NoSchedule
+        operator: Exists
+      volumes:
+      - hostPath:
+          path: /var/log
+        name: varlog
+      - hostPath:
+          path: /var/lib/docker/containers
+        name: varlibdockercontainers
+      - configMap:
+          name: fluent-bit-config
+        name: fluent-bit-config
+
+        

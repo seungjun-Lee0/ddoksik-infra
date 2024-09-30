@@ -1,0 +1,11 @@
+export CLUSTER_NAME=group3_prod
+export LOGGING_ROLE=$(kubectl get sa fluent-bit -n logging -o json |jq '.metadata.annotations."eks.amazonaws.com/role-arn"' -r)
+export OPEN_SEARCH_ENDPOINT=search-ddoksik-vg6hgwk3if5ofeftuystz5scea.ap-northeast-2.es.amazonaws.com
+export OPEN_SEARCH_MASTER_USER=admin
+export OPEN_SEARCH_MASTER_PASSWORD=Ddoksik01!
+
+# 3) OpenSearch Internal Database 업데이트
+curl -sS -u "${OPEN_SEARCH_MASTER_USER}:${OPEN_SEARCH_MASTER_PASSWORD}" \
+    -X PATCH https://${OPEN_SEARCH_ENDPOINT}/_opendistro/_security/api/rolesmapping/all_access?pretty \
+    -H 'Content-Type: application/json' \
+    -d '[{"op": "add", "path": "/backend_roles", "value": [ "'${LOGGING_ROLE}'" ]}]'

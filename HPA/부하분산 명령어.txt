@@ -1,0 +1,3 @@
+# 무한 루프를 통해 매 0.01초마다 'php-apache' 서비스로 HTTP 요청을 보냅니다.
+kubectl run -i --tty load-generator --pod-running-timeout=5m0s --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://ui-svc; done"
+

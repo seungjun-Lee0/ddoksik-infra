@@ -1,0 +1,8 @@
+helm install events-to-opensearch \
+    oci://registry-1.docker.io/bitnamicharts/kubernetes-event-exporter \
+    --namespace logging --create-namespace \
+    -f ./events-exporter-values.yaml \
+    --set="config.receivers[0].opensearch.username"="admin" \
+    --set="config.receivers[0].opensearch.password"="Ddoksik01!" \
+    --set="config.receivers[0].opensearch.hosts[0]"="https://search-ddoksik-vg6hgwk3if5ofeftuystz5scea.ap-northeast-2.es.amazonaws.com" \
+    --wait

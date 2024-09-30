@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fail-test-pod
+  namespace: default  # 원하는 네임스페이스로 변경하세요.
+spec:
+  containers:
+  - name: fail
+    image: busybox
+    command: ["sh", "-c", "exit 1"]  # 비정상 종료를 유발합니다.
