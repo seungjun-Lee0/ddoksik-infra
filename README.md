@@ -98,7 +98,7 @@ kubectl apply -f argocd/argocd-ingress.yaml
 kubectl apply -f argocd/argocd-svc.yaml
 kubectl apply -f HPA/metrics-server.yaml
 ```
-Usage
+## Usage
 Scaling with Karpenter
 Karpenter automatically provisions new nodes in response to pending pods in your Kubernetes cluster. To check Karpenter logs and scaling activities, use:
 
@@ -113,7 +113,7 @@ kubectl port-forward svc/grafana 3000:80
 ```
 Access Grafana at http://localhost:3000 and log in using the default credentials.
 
-Monitoring and Logging
+## Monitoring and Logging
 Centralized Logging with Fluentbit and OpenSearch
 The logging solution uses Fluentbit to collect logs from Kubernetes pods and forward them to OpenSearch for centralized storage and analysis. To deploy the logging components:
 
@@ -128,7 +128,7 @@ The jaeger.yaml file deploys Jaeger, a distributed tracing platform for monitori
 ```bash
 kubectl apply -f HPA/jaeger.yaml
 ```
-Contributing
+## Contributing
 We welcome contributions! To contribute to the project:
 
 Fork the repository.
