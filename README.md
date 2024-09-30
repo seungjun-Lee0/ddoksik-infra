@@ -1,93 +1,142 @@
-# 똑똑한식단. 똑식이_인프라
+# Ddoksik Infra
 
+This repository contains the infrastructure as code (IaC) configurations for the Ddoksik project. It uses **Terraform** for provisioning AWS resources, **Kubernetes** for deploying and managing microservices, **ArgoCD** for GitOps-based continuous delivery, and **Karpenter** for automated Kubernetes cluster scaling. Additionally, the repository includes monitoring, logging, and auto-scaling configurations using **Prometheus**, **Grafana**, **Fluentbit**, and **OpenSearch**.
 
+## Table of Contents
 
-## Getting started
+- [Overview](#overview)
+- [Technologies Used](#technologies-used)
+- [Infrastructure Components](#infrastructure-components)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Monitoring and Logging](#monitoring-and-logging)
+- [Contributing](#contributing)
+- [License](#license)
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Overview
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+This repository manages the entire infrastructure for the Ddoksik project. It is divided into multiple directories for different purposes such as handling Horizontal Pod Autoscaling (HPA), managing Kubernetes resources with **ArgoCD**, and configuring **Karpenter** for autoscaling. The repository also includes scripts and configurations for monitoring, logging, and handling serverless architecture with **AWS Lambda**.
 
-## Add your files
+## Technologies Used
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- **Terraform**: Used for managing and provisioning AWS resources.
+- **Kubernetes**: Container orchestration for running microservices.
+- **ArgoCD**: GitOps-based continuous delivery tool for Kubernetes.
+- **Karpenter**: Kubernetes cluster autoscaler for managing node provisioning.
+- **Prometheus** & **Grafana**: Monitoring and alerting.
+- **Fluentbit** & **OpenSearch**: Centralized logging and log forwarding.
+- **Jaeger**: Distributed tracing for microservices.
+- **AWS Lambda**: For serverless execution of certain tasks.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.bangwol08.com/bangwol08/healthcare_infra.git
-git branch -M main
-git push -uf origin main
-```
+## Infrastructure Components
 
-## Integrate with your tools
+### HPA (Horizontal Pod Autoscaling)
+The `HPA` directory contains configuration for autoscaling the diet, user, and UI services based on CPU and memory utilization.
 
-- [ ] [Set up project integrations](https://gitlab.bangwol08.com/bangwol08/healthcare_infra/-/settings/integrations)
+- **diet-hpa.tf**: Terraform configuration for the diet service autoscaler.
+- **user-hpa.tf**: Terraform configuration for the user service autoscaler.
+- **ui-hpa.tf**: Terraform configuration for the UI service autoscaler.
+- **metrics-server.yaml**: Deploys the Kubernetes Metrics Server, a necessary component for HPA.
 
-## Collaborate with your team
+### ArgoCD
+The `argocd` directory manages the continuous deployment of Kubernetes resources.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+- **argocd-ingress.yaml**: Ingress configuration for ArgoCD.
+- **argocd-svc.yaml**: Service configuration for ArgoCD.
 
-## Test and Deploy
+### Karpenter
+The `karpenter` directory contains Terraform scripts to enable Karpenter, which handles Kubernetes node scaling.
 
-Use the built-in continuous integration in GitLab.
+- **karpenter.tf**: Terraform configuration for Karpenter setup.
+- **providers.tf**: Provider configurations for AWS and Kubernetes.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Logs
+The `logs` directory handles centralized logging using Fluentbit and OpenSearch.
 
-***
+- **fluentbit+OpenSearch**: Fluentbit configuration to forward logs to OpenSearch for centralized logging and analysis.
+- **s3-to-opensearch**: Lambda function code that moves data from an S3 bucket to OpenSearch.
 
-# Editing this README
+### Monitoring
+The `monitoring` directory includes configurations for monitoring services using Prometheus and Grafana.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- **grafana.yaml**: Grafana deployment configuration.
+- **prometheus/alertmanager**: Prometheus Alertmanager configuration for handling alerts.
+- **prometheus/kube-state-metrics**: Monitors the state of Kubernetes objects.
+- **prometheus/prometheus-node-exporter**: Exposes system-level metrics for Prometheus.
+- **prometheus/prometheus-pushgateway**: For pushing metrics to Prometheus.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Prerequisites
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- **Terraform**: Ensure that Terraform is installed (`>= 1.0.0`).
+- **kubectl**: Kubernetes CLI to interact with the cluster.
+- **AWS CLI**: For authentication with AWS services.
+- **Helm**: For deploying Prometheus and Grafana.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Cloning the Repository
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+git clone https://github.com/seungjun-Lee0/ddoksik-infra.git
+cd ddoksik-infra
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Initialize and Apply Terraform
+To set up the infrastructure, use Terraform to initialize and apply the configurations:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```bash
+terraform init
+terraform apply
+```
+Make sure to have the necessary AWS credentials and permissions to manage the resources.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Deploying Kubernetes Resources
+Once the infrastructure is provisioned, deploy the Kubernetes resources using the following commands:
 
-## License
-For open source projects, say how it is licensed.
+```bash
+kubectl apply -f argocd/argocd-ingress.yaml
+kubectl apply -f argocd/argocd-svc.yaml
+kubectl apply -f HPA/metrics-server.yaml
+```
+Usage
+Scaling with Karpenter
+Karpenter automatically provisions new nodes in response to pending pods in your Kubernetes cluster. To check Karpenter logs and scaling activities, use:
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+kubectl logs -n karpenter -l karpenter
+```
+Monitoring with Prometheus and Grafana
+Prometheus scrapes metrics from various Kubernetes components, and Grafana provides visual dashboards. To access the Grafana UI, configure the Ingress (grafana-Ingress.yaml) and forward the port:
+
+```bash
+kubectl port-forward svc/grafana 3000:80
+```
+Access Grafana at http://localhost:3000 and log in using the default credentials.
+
+Monitoring and Logging
+Centralized Logging with Fluentbit and OpenSearch
+The logging solution uses Fluentbit to collect logs from Kubernetes pods and forward them to OpenSearch for centralized storage and analysis. To deploy the logging components:
+
+```bash
+kubectl apply -f logs/fluentbit+OpenSearch/
+```
+You can view logs in OpenSearch and set up dashboards for detailed log analysis.
+
+Distributed Tracing with Jaeger
+The jaeger.yaml file deploys Jaeger, a distributed tracing platform for monitoring and troubleshooting microservices. To deploy Jaeger:
+
+```bash
+kubectl apply -f HPA/jaeger.yaml
+```
+Contributing
+We welcome contributions! To contribute to the project:
+
+Fork the repository.
+Create a new feature branch (git checkout -b feature-branch).
+Make your changes and commit them (git commit -m 'Add new feature').
+Push to the branch (git push origin feature-branch).
+Open a pull request.
+Please ensure that your code adheres to the project's coding standards and includes relevant tests.
+
+License
+This project is licensed under the MIT License. See the LICENSE file for more details.
